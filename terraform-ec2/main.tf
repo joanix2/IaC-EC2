@@ -5,8 +5,7 @@ provider "aws" {
 resource "aws_security_group" "allow_ssh" {
   name        = "allow_ssh"
   description = "Allow SSH access"
-  vpc_id      = "vpc-099eebb306d222379" # Remplacez par votre VPC ID
-
+  vpc_id      = "vpc-099eebb306d222379"
   ingress {
     from_port   = 22
     to_port     = 22
@@ -22,17 +21,25 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-# Ajouter votre clé publique existante
-resource "aws_key_pair" "local_key" {
-  key_name   = "my-local-key"
-  public_key = file("~/.ssh/id_rsa.pub")
+resource "aws_key_pair" "TF_key" {
+  key_name   = "TF_key"
+  public_key = tls_private_key.rsa.public_key_openssh
+}
+
+resource "tls_private_key" "rsa" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "local_file" "TF_key" {
+  content  = tls_private_key.rsa.private_key_pem
+  filename = "tfkey"
 }
 
 # Création d'une instance EC2
 resource "aws_instance" "example" {
   ami           = "ami-06e02ae7bdac6b938" # AMI Amazon Linux 2 (us-east-1)
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.local_key.key_name
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
   tags = {

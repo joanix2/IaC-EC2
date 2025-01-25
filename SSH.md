@@ -16,4 +16,10 @@ aws ec2 authorize-security-group-ingress \
 
 ## connexion SSH
 
-ssh -i ~/.ssh/id_rsa ubuntu@13.39.86.6
+### donner les permision sur le fichier de la clé SSH
+
+chmod 400 tfkey
+
+### connexion ssh
+
+ssh -i tfkey ec2-user@<PUBLIC_IP>
