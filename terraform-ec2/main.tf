@@ -48,3 +48,8 @@ resource "aws_instance" "example" {
 output "public_ip" {
   value = aws_instance.example.public_ip
 }
+
+# Affichez l'adresse DNS publique de l'instance
+output "public_dns" {
+  value = aws_instance.example.public_dns
+}
