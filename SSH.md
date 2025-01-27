@@ -1,6 +1,6 @@
-## Récupérer ma clé SSH
+## Créer une clé SSH
 
-cat ~/.ssh/id_rsa.pub
+ssh-keygen -t rsa -b 2048
 
 ## Trouver le Security Group attaché à votre instance
 
@@ -18,8 +18,9 @@ aws ec2 authorize-security-group-ingress \
 
 ### donner les permision sur le fichier de la clé SSH
 
-chmod 400 tfkey
+chmod 400 <SSH private key file>
 
 ### connexion ssh
 
-ssh -i tfkey ec2-user@<PUBLIC_IP>
+ssh -i <SSH private key> ubuntu@<DNS IPv4 public>
+ex : ssh -i ~/.ssh/aws_key.pem ubuntu@ec2-13-39-47-165.eu-west-3.compute.amazonaws.com
