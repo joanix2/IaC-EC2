@@ -8,16 +8,21 @@ variable "public_key_path" {
   default = "~/.ssh/aws_key.pem.pub"
 }
 
+variable "private_key_path" {
+  default = "~/.ssh/aws_key.pem"
+}
+
+
 # Créez une clé SSH
 resource "aws_key_pair" "example" {
   key_name   = "example-key"
-  public_key = file(var.public_key_path) # Chemin vers la clé publique
+  public_key = file(var.public_key_path)
 }
 
 # Créez un groupe de sécurité
 resource "aws_security_group" "example" {
   name        = "example-sg"
-  description = "Security group for EC2 instance" # Updated to ASCII-only
+  description = "Security group for EC2 instance"
 
   # Autorisez le trafic SSH
   ingress {
@@ -25,6 +30,14 @@ resource "aws_security_group" "example" {
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # Changez par votre IP publique pour plus de sécurité
+  }
+
+  # Autorisez tout le trafic sortant
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -35,12 +48,18 @@ resource "aws_instance" "example" {
   key_name      = aws_key_pair.example.key_name
   vpc_security_group_ids = [aws_security_group.example.id]
 
+  # Script Bash à exécuter au démarrage
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo snap install docker
+  EOF
+
   # Configurez la connexion SSH
   connection {
     type        = "ssh"
     host        = self.public_ip
     user        = "ec2-user"
-    private_key = file("${path.home}/.ssh/aws_key.pem") # Using path.home for dynamic path
+    private_key = file(var.private_key_path)
   }
 }
 
